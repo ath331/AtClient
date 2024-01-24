@@ -3,9 +3,9 @@
 using System.IO;
 using UnrealBuildTool;
 
-public class ProtobufCore : ModuleRules
+public class ProtoBufCore : ModuleRules
 {
-	public ProtobufCore(ReadOnlyTargetRules Target) : base(Target)
+	public ProtoBufCore(ReadOnlyTargetRules Target) : base(Target)
 	{
 		Type = ModuleType.External;
 
