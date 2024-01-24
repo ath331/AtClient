@@ -10,7 +10,7 @@ public class AtClient : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "ProtoBufCore" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "ProtobufCore" });
 
 		PrivateIncludePaths.AddRange( new string[]
 		{
