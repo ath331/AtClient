@@ -5,14 +5,14 @@ using UnrealBuildTool;
 
 public class ProtoBufCore : ModuleRules
 {
-	public ProtoBufCore(ReadOnlyTargetRules Target) : base(Target)
+	public ProtoBufCore( ReadOnlyTargetRules Target ) : base( Target )
 	{
 		Type = ModuleType.External;
 
-		PublicSystemIncludePaths.Add(Path.Combine(ModuleDirectory, "Include"));
-		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Include"));
-		PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "Lib", "Win64", "libprotobuf.lib"));
+		PublicSystemIncludePaths.Add( Path.Combine( ModuleDirectory, "Include" ) );
+		PublicIncludePaths.Add( Path.Combine( ModuleDirectory, "Include" ) );
+		PublicAdditionalLibraries.Add( Path.Combine( ModuleDirectory, "Lib", "Win64", "libprotobuf.lib" ) );
 
-		PublicDefinitions.Add("GOOGLE_PROTOBUF_NO_RTTI=1");
+		PublicDefinitions.Add( "GOOGLE_PROTOBUF_NO_RTTI=1" );
 	}
 }

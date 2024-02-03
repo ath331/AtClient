@@ -4,23 +4,23 @@ using UnrealBuildTool;
 
 public class AtClient : ModuleRules
 {
-	public AtClient(ReadOnlyTargetRules Target) : base(Target)
+	public AtClient( ReadOnlyTargetRules Target ) : base( Target )
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "ProtoBufCore" });
+		PublicDependencyModuleNames.AddRange( new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Sockets", "Networking" } );
+
+		PrivateDependencyModuleNames.AddRange( new string[] { "ProtoBufCore" } );
 
 		PrivateIncludePaths.AddRange( new string[]
 		{
-            "AtClient/",
-            "AtClient/Network/",
+			"AtClient/",
+			"AtClient/Network/",
 		} );
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-		
+
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 
