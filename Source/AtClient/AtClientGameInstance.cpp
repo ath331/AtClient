@@ -8,6 +8,7 @@
 #include "Common/TcpSocketBuilder.h"
 #include "Serialization/ArrayWriter.h"
 #include "SocketSubsystem.h"
+#include "PacketSession.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,9 +33,8 @@ void UAtClientGameInstance::ConnectToGameServer()
 	{
 		GEngine->AddOnScreenDebugMessage( -1, 5.f, FColor::Red, FString::Printf( TEXT( "Connection Success" ) ) );
 
-		// Session
-		// GameServerSession = MakeShared< PacketSession >( Socket );
-		// GameServerSession->Run();
+		GameServerSession = MakeShared< PacketSession >( Socket );
+		GameServerSession->Run();
 	}
 	else
 	{
@@ -53,4 +53,26 @@ void UAtClientGameInstance::DisconnectFromGameServer()
 		SocketSubsystem->DestroySocket( Socket );
 		Socket = nullptr;
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// @brief 받은 패킷을 처리한다.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void UAtClientGameInstance::HandleRecvPackets()
+{
+	if ( !Socket || !GameServerSession )
+		return;
+
+	GameServerSession->HandleRecvPackets();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// @brief 패킷을 전송한다.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void UAtClientGameInstance::SendPacket( SendBufferPtr SendBuffer )
+{
+	if ( !Socket || !GameServerSession )
+		return;
+
+	GameServerSession->SendPacket( SendBuffer );
 }
