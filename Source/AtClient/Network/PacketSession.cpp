@@ -5,6 +5,7 @@
 
 #include "Network/PacketSession.h"
 #include "NetworkWorker.h"
+#include "ServerPacketHandler.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -13,6 +14,7 @@
 PacketSession::PacketSession( class FSocket* Socket )
 	: Socket( Socket )
 {
+	ServerPacketHandler::Init();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,8 +45,8 @@ void PacketSession::HandleRecvPackets()
 		if ( !RecvPacketQueue.Dequeue( OUT Packet ) )
 			break;
 
-		// PacketSessionPtr ThisPtr = AsShared();
-		// ClientPacketHandler::HandlePacket( ThisPtr, Packet.GetData(), Packet.Num() );
+		PacketSessionPtr ThisPtr = AsShared();
+		ServerPacketHandler::HandlePacket( ThisPtr, Packet.GetData(), Packet.Num() );
 	}
 }
 
