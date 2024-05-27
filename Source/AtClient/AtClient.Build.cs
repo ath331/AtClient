@@ -6,7 +6,8 @@ public class AtClient : ModuleRules
 {
 	public AtClient( ReadOnlyTargetRules Target ) : base( Target )
 	{
-		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		// PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		// PrivatePCHHeaderFile = "pch.h";
 
 		PublicDependencyModuleNames.AddRange( new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Sockets", "Networking" } );
 
@@ -16,7 +17,7 @@ public class AtClient : ModuleRules
 		{
 			"AtClient/",
 			"AtClient/Network/",
-		} );
+        } );
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

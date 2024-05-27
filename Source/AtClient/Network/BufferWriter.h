@@ -46,8 +46,8 @@ T* BufferWriter::Reserve()
 template<typename T>
 BufferWriter& BufferWriter::operator<<(T&& src)
 {
-	using DataType = std::remove_reference_t<T>;
-	*reinterpret_cast<DataType*>(&_buffer[_pos]) = std::forward<DataType>(src);
-	_pos += sizeof(T);
+	// using DataType = std::remove_reference_t<T>;
+	// *reinterpret_cast<DataType*>(&_buffer[_pos]) = std::forward<DataType>(src);
+	// _pos += sizeof(T);
 	return *this;
 }

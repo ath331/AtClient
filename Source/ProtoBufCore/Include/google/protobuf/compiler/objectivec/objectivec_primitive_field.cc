@@ -35,6 +35,8 @@
 #include <google/protobuf/compiler/objectivec/objectivec_primitive_field.h>
 #include <google/protobuf/io/printer.h>
 #include <google/protobuf/stubs/strutil.h>
+#include <google/protobuf/wire_format.h>
+#include <google/protobuf/wire_format_lite.h>
 
 namespace google {
 namespace protobuf {
@@ -123,8 +125,8 @@ void SetPrimitiveVariables(const FieldDescriptor* descriptor,
 }  // namespace
 
 PrimitiveFieldGenerator::PrimitiveFieldGenerator(
-    const FieldDescriptor* descriptor)
-    : SingleFieldGenerator(descriptor) {
+    const FieldDescriptor* descriptor, const Options& options)
+    : SingleFieldGenerator(descriptor, options) {
   SetPrimitiveVariables(descriptor, &variables_);
 }
 
@@ -157,8 +159,8 @@ void PrimitiveFieldGenerator::SetExtraRuntimeHasBitsBase(int has_base) {
 }
 
 PrimitiveObjFieldGenerator::PrimitiveObjFieldGenerator(
-    const FieldDescriptor* descriptor)
-    : ObjCObjFieldGenerator(descriptor) {
+    const FieldDescriptor* descriptor, const Options& options)
+    : ObjCObjFieldGenerator(descriptor, options) {
   SetPrimitiveVariables(descriptor, &variables_);
   variables_["property_storage_attribute"] = "copy";
 }
@@ -166,8 +168,8 @@ PrimitiveObjFieldGenerator::PrimitiveObjFieldGenerator(
 PrimitiveObjFieldGenerator::~PrimitiveObjFieldGenerator() {}
 
 RepeatedPrimitiveFieldGenerator::RepeatedPrimitiveFieldGenerator(
-    const FieldDescriptor* descriptor)
-    : RepeatedFieldGenerator(descriptor) {
+    const FieldDescriptor* descriptor, const Options& options)
+    : RepeatedFieldGenerator(descriptor, options) {
   SetPrimitiveVariables(descriptor, &variables_);
 
   std::string base_name = PrimitiveArrayTypeName(descriptor);

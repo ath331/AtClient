@@ -34,6 +34,8 @@
 
 #include <google/protobuf/compiler/command_line_interface.h>
 
+#include <cstdint>
+
 #include <google/protobuf/stubs/platform_macros.h>
 
 #include <stdio.h>
@@ -51,11 +53,10 @@
 #endif
 #include <ctype.h>
 #include <errno.h>
-
 #include <fstream>
 #include <iostream>
 
-#include <limits.h>  // For PATH_MAX
+#include <limits.h>  //For PATH_MAX
 
 #include <memory>
 
@@ -67,26 +68,25 @@
 
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/stubs/logging.h>
-#include <google/protobuf/compiler/subprocess.h>
-#include <google/protobuf/compiler/plugin.pb.h>
-#include <google/protobuf/stubs/strutil.h>
 #include <google/protobuf/stubs/stringprintf.h>
-#include <google/protobuf/stubs/substitute.h>
+#include <google/protobuf/compiler/subprocess.h>
+#include <google/protobuf/compiler/zip_writer.h>
+#include <google/protobuf/compiler/plugin.pb.h>
 #include <google/protobuf/compiler/code_generator.h>
 #include <google/protobuf/compiler/importer.h>
-#include <google/protobuf/compiler/zip_writer.h>
-#include <google/protobuf/descriptor.h>
-#include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/io/io_win32.h>
 #include <google/protobuf/io/printer.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/text_format.h>
+#include <google/protobuf/stubs/strutil.h>
+#include <google/protobuf/stubs/substitute.h>
+#include <google/protobuf/io/io_win32.h>
 #include <google/protobuf/stubs/map_util.h>
 #include <google/protobuf/stubs/stl_util.h>
 
 
-// Must be included last.
 #include <google/protobuf/port_def.inc>
 
 namespace google {
@@ -195,7 +195,7 @@ bool TryCreateParentDirectory(const std::string& prefix,
 bool GetProtocAbsolutePath(std::string* path) {
 #ifdef _WIN32
   char buffer[MAX_PATH];
-  int len = GetModuleFileNameA(nullptr, buffer, MAX_PATH);
+  int len = GetModuleFileNameA(NULL, buffer, MAX_PATH);
 #elif defined(__APPLE__)
   char buffer[PATH_MAX];
   int len = 0;
@@ -210,7 +210,7 @@ bool GetProtocAbsolutePath(std::string* path) {
   char buffer[PATH_MAX];
   size_t len = PATH_MAX;
   int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
-  if (sysctl(mib, 4, &buffer, &len, nullptr, 0) != 0) {
+  if (sysctl(mib, 4, &buffer, &len, NULL, 0) != 0) {
     len = 0;
   }
 #else
@@ -289,45 +289,45 @@ class CommandLineInterface::ErrorPrinter
       public io::ErrorCollector,
       public DescriptorPool::ErrorCollector {
  public:
-  ErrorPrinter(ErrorFormat format, DiskSourceTree* tree = nullptr)
+  ErrorPrinter(ErrorFormat format, DiskSourceTree* tree = NULL)
       : format_(format),
         tree_(tree),
         found_errors_(false),
         found_warnings_(false) {}
-  ~ErrorPrinter() override {}
+  ~ErrorPrinter() {}
 
   // implements MultiFileErrorCollector ------------------------------
   void AddError(const std::string& filename, int line, int column,
-                const std::string& message) override {
+                const std::string& message) {
     found_errors_ = true;
     AddErrorOrWarning(filename, line, column, message, "error", std::cerr);
   }
 
   void AddWarning(const std::string& filename, int line, int column,
-                  const std::string& message) override {
+                  const std::string& message) {
     found_warnings_ = true;
     AddErrorOrWarning(filename, line, column, message, "warning", std::clog);
   }
 
   // implements io::ErrorCollector -----------------------------------
-  void AddError(int line, int column, const std::string& message) override {
+  void AddError(int line, int column, const std::string& message) {
     AddError("input", line, column, message);
   }
 
-  void AddWarning(int line, int column, const std::string& message) override {
+  void AddWarning(int line, int column, const std::string& message) {
     AddErrorOrWarning("input", line, column, message, "warning", std::clog);
   }
 
   // implements DescriptorPool::ErrorCollector-------------------------
   void AddError(const std::string& filename, const std::string& element_name,
                 const Message* descriptor, ErrorLocation location,
-                const std::string& message) override {
+                const std::string& message) {
     AddErrorOrWarning(filename, -1, -1, message, "error", std::cerr);
   }
 
   void AddWarning(const std::string& filename, const std::string& element_name,
                   const Message* descriptor, ErrorLocation location,
-                  const std::string& message) override {
+                  const std::string& message) {
     AddErrorOrWarning(filename, -1, -1, message, "warning", std::clog);
   }
 
@@ -341,8 +341,8 @@ class CommandLineInterface::ErrorPrinter
                          std::ostream& out) {
     // Print full path when running under MSVS
     std::string dfile;
-    if (format_ == CommandLineInterface::ERROR_FORMAT_MSVS &&
-        tree_ != nullptr && tree_->VirtualFileToDiskFile(filename, &dfile)) {
+    if (format_ == CommandLineInterface::ERROR_FORMAT_MSVS && tree_ != NULL &&
+        tree_->VirtualFileToDiskFile(filename, &dfile)) {
       out << dfile;
     } else {
       out << filename;
@@ -400,14 +400,14 @@ class CommandLineInterface::GeneratorContextImpl : public GeneratorContext {
   void GetOutputFilenames(std::vector<std::string>* output_filenames);
 
   // implements GeneratorContext --------------------------------------
-  io::ZeroCopyOutputStream* Open(const std::string& filename) override;
-  io::ZeroCopyOutputStream* OpenForAppend(const std::string& filename) override;
-  io::ZeroCopyOutputStream* OpenForInsert(
-      const std::string& filename, const std::string& insertion_point) override;
+  io::ZeroCopyOutputStream* Open(const std::string& filename);
+  io::ZeroCopyOutputStream* OpenForAppend(const std::string& filename);
+  io::ZeroCopyOutputStream* OpenForInsert(const std::string& filename,
+                                          const std::string& insertion_point);
   io::ZeroCopyOutputStream* OpenForInsertWithGeneratedCodeInfo(
       const std::string& filename, const std::string& insertion_point,
-      const google::protobuf::GeneratedCodeInfo& info) override;
-  void ListParsedFiles(std::vector<const FileDescriptor*>* output) override {
+      const google::protobuf::GeneratedCodeInfo& info);
+  void ListParsedFiles(std::vector<const FileDescriptor*>* output) {
     *output = parsed_files_;
   }
 
@@ -434,7 +434,7 @@ class CommandLineInterface::MemoryOutputStream
                      const std::string& filename,
                      const std::string& insertion_point,
                      const google::protobuf::GeneratedCodeInfo& info);
-  ~MemoryOutputStream() override;
+  virtual ~MemoryOutputStream();
 
   // implements ZeroCopyOutputStream ---------------------------------
   bool Next(void** data, int* size) override {
@@ -1116,7 +1116,7 @@ int CommandLineInterface::Run(int argc, const char* const argv[]) {
       FileDescriptorProto file;
       file.set_name("empty_message.proto");
       file.add_message_type()->set_name("EmptyMessage");
-      GOOGLE_CHECK(pool.BuildFile(file) != nullptr);
+      GOOGLE_CHECK(pool.BuildFile(file) != NULL);
       codec_type_ = "EmptyMessage";
       if (!EncodeOrDecode(&pool)) {
         return 1;
@@ -1270,7 +1270,7 @@ bool CommandLineInterface::ParseInputFiles(
     // Import the file.
     const FileDescriptor* parsed_file =
         descriptor_pool->FindFileByName(input_file);
-    if (parsed_file == nullptr) {
+    if (parsed_file == NULL) {
       result = false;
       break;
     }
@@ -1496,7 +1496,7 @@ CommandLineInterface::ParseArgumentStatus CommandLineInterface::ParseArguments(
     for (std::vector<OutputDirective>::const_iterator j =
              output_directives_.begin();
          j != output_directives_.end(); ++j) {
-      if (j->generator == nullptr) {
+      if (j->generator == NULL) {
         std::string plugin_name = PluginName(plugin_prefix_, j->name);
         if (plugin_name == i->first) {
           foundImplicitPlugin = true;
@@ -1606,7 +1606,7 @@ bool CommandLineInterface::ParseArgument(const char* arg, std::string* name,
     // Two dashes:  Multi-character name, with '=' separating name and
     //   value.
     const char* equals_pos = strchr(arg, '=');
-    if (equals_pos != nullptr) {
+    if (equals_pos != NULL) {
       *name = std::string(arg, equals_pos - arg);
       *value = equals_pos + 1;
       parsed_value = true;
@@ -1674,9 +1674,8 @@ CommandLineInterface::InterpretArgument(const std::string& name,
     // On Windows, the shell (typically cmd.exe) does not expand wildcards in
     // file names (e.g. foo\*.proto), so we do it ourselves.
     switch (google::protobuf::io::win32::ExpandWildcards(
-        value, [this](const std::string& path) {
-          this->input_files_.push_back(path);
-        })) {
+        value,
+        [this](const string& path) { this->input_files_.push_back(path); })) {
       case google::protobuf::io::win32::ExpandWildcardsResult::kSuccess:
         break;
       case google::protobuf::io::win32::ExpandWildcardsResult::
@@ -1947,11 +1946,11 @@ CommandLineInterface::InterpretArgument(const std::string& name,
     // Some other flag.  Look it up in the generators list.
     const GeneratorInfo* generator_info =
         FindOrNull(generators_by_flag_name_, name);
-    if (generator_info == nullptr &&
+    if (generator_info == NULL &&
         (plugin_prefix_.empty() || !HasSuffixString(name, "_out"))) {
       // Check if it's a generator option flag.
       generator_info = FindOrNull(generators_by_option_name_, name);
-      if (generator_info != nullptr) {
+      if (generator_info != NULL) {
         std::string* parameters =
             &generator_parameters_[generator_info->flag_name];
         if (!parameters->empty()) {
@@ -1980,8 +1979,8 @@ CommandLineInterface::InterpretArgument(const std::string& name,
 
       OutputDirective directive;
       directive.name = name;
-      if (generator_info == nullptr) {
-        directive.generator = nullptr;
+      if (generator_info == NULL) {
+        directive.generator = NULL;
       } else {
         directive.generator = generator_info->generator;
       }
@@ -2137,7 +2136,7 @@ bool CommandLineInterface::GenerateOutput(
     GeneratorContext* generator_context) {
   // Call the generator.
   std::string error;
-  if (output_directive.generator == nullptr) {
+  if (output_directive.generator == NULL) {
     // This is a plugin.
     GOOGLE_CHECK(HasPrefixString(output_directive.name, "--") &&
           HasSuffixString(output_directive.name, "_out"))
@@ -2207,10 +2206,6 @@ bool CommandLineInterface::GenerateDependencyManifestFile(
       }
       output_filenames.push_back(output_filename);
     }
-  }
-
-  if (!descriptor_set_out_name_.empty()) {
-    output_filenames.push_back(descriptor_set_out_name_);
   }
 
   int fd;
@@ -2309,7 +2304,7 @@ bool CommandLineInterface::GeneratePluginOutput(
     if (!output_file.insertion_point().empty()) {
       std::string filename = output_file.name();
       // Open a file for insert.
-      // We reset current_output to nullptr first so that the old file is closed
+      // We reset current_output to NULL first so that the old file is closed
       // before the new one is opened.
       current_output.reset();
       current_output.reset(
@@ -2318,11 +2313,11 @@ bool CommandLineInterface::GeneratePluginOutput(
               output_file.generated_code_info()));
     } else if (!output_file.name().empty()) {
       // Starting a new file.  Open it.
-      // We reset current_output to nullptr first so that the old file is closed
+      // We reset current_output to NULL first so that the old file is closed
       // before the new one is opened.
       current_output.reset();
       current_output.reset(generator_context->Open(output_file.name()));
-    } else if (current_output == nullptr) {
+    } else if (current_output == NULL) {
       *error = strings::Substitute(
           "$0: First file chunk returned by plugin did not specify a file "
           "name.",
@@ -2352,7 +2347,7 @@ bool CommandLineInterface::GeneratePluginOutput(
 bool CommandLineInterface::EncodeOrDecode(const DescriptorPool* pool) {
   // Look up the type.
   const Descriptor* type = pool->FindMessageTypeByName(codec_type_);
-  if (type == nullptr) {
+  if (type == NULL) {
     std::cerr << "Type not defined: " << codec_type_ << std::endl;
     return false;
   }
@@ -2428,8 +2423,8 @@ bool CommandLineInterface::WriteDescriptorSet(
     to_output.insert(parsed_files.begin(), parsed_files.end());
     for (int i = 0; i < parsed_files.size(); i++) {
       const FileDescriptor* file = parsed_files[i];
-      for (int j = 0; j < file->dependency_count(); j++) {
-        const FileDescriptor* dependency = file->dependency(j);
+      for (int i = 0; i < file->dependency_count(); i++) {
+        const FileDescriptor* dependency = file->dependency(i);
         // if the dependency isn't in parsed files, mark it as already seen
         if (to_output.find(dependency) == to_output.end()) {
           already_seen.insert(dependency);
@@ -2591,8 +2586,7 @@ void FormatFreeFieldNumbers(const std::string& name,
         StringAppendF(&output, " %d", next_free_number);
       } else {
         // Range
-        StringAppendF(&output, " %d-%d", next_free_number,
-                              i->first - 1);
+        StringAppendF(&output, " %d-%d", next_free_number, i->first - 1);
       }
     }
     next_free_number = i->second;

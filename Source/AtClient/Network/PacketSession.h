@@ -7,7 +7,9 @@
 
 
 #include "CoreMinimal.h"
+#include "UObject/ObjectMacros.h"
 #include "AtClient.h" //< SendBuffer를 따로 클래스화 하기
+#include "Containers/Queue.h"
 
 
 /**

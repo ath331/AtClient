@@ -4,7 +4,7 @@
 #include "MyActor.h"
 #include "Protocol.pb.h"
 #include "AtClientGameInstance.h"
-#include "ServerPacketHandler.h"
+#include "Network/Handler/ServerPacketHandler.h"
 
 
 // Sets default values
@@ -28,7 +28,7 @@ void AMyActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-	Protocol::C_CHAT msg;
+	Protocol::C_Chat msg;
 	msg.set_msg( "hello Server" );
 
 	SendBufferPtr sendBufferPtr = ServerPacketHandler::MakeSendBuffer( msg );

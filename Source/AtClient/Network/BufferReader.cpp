@@ -1,8 +1,11 @@
 #include "BufferReader.h"
+#include "HAL/UnrealMemory.h"
+
 
 /*----------------
 	BufferReader
 -----------------*/
+
 
 BufferReader::BufferReader()
 {
@@ -24,7 +27,7 @@ bool BufferReader::Peek(void* dest, uint32 len)
 	if (FreeSize() < len)
 		return false;
 
-	::memcpy(dest, &_buffer[_pos], len);
+	memcpy(dest, &_buffer[_pos], len);
 	return true;
 }
 

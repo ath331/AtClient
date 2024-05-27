@@ -7,6 +7,9 @@
 #include "Sockets.h"
 #include "Serialization/ArrayWriter.h"
 #include "PacketSession.h"
+#include "HAL/RunnableThread.h"
+#include "Serialization/MemoryReader.h"
+#include "Engine.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
