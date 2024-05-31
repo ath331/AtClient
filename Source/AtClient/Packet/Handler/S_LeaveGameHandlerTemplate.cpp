@@ -3,15 +3,15 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#include "pch.h"
+//#include "pch.h"
 #include "ServerPacketHandler.h"
-#include "Login/S_LOGINHandler.h"
+#include "Game/S_LeaveGameHandler.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // @breif HandlerRun
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-bool Handle_S_LoginTemplate( PacketSessionPtr& session, Protocol::S_Login& pkt )
+bool Handle_S_LeaveGameTemplate( PacketSessionPtr& session, Protocol::S_LeaveGame& pkt )
 {
-	return S_LOGINHandler::Handle( session, pkt );
+	return S_LeaveGameHandler::Handle( session, pkt );
 }

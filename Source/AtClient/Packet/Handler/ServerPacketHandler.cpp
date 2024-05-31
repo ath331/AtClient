@@ -1,5 +1,5 @@
 #include "ServerPacketHandler.h"
-#include "Network/BufferReader.h"
+#include "Packet/BufferReader.h"
 
 
 PacketHandlerFunc GPacketHandler[UINT16_MAX];

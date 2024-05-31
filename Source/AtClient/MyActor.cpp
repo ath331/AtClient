@@ -4,7 +4,7 @@
 #include "MyActor.h"
 #include "Protocol.pb.h"
 #include "AtClientGameInstance.h"
-#include "Network/Handler/ServerPacketHandler.h"
+#include "Packet/Handler/ServerPacketHandler.h"
 
 
 // Sets default values
