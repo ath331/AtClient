@@ -14,5 +14,13 @@ public class ProtoBufCore : ModuleRules
         PublicAdditionalLibraries.Add( Path.Combine( ModuleDirectory, "Lib", "Win64", "libprotobuf.lib" ) );
 
 		PublicDefinitions.Add( "GOOGLE_PROTOBUF_NO_RTTI=1" );
+
+        PublicIncludePaths.AddRange( new string[]
+        {
+            "AtClient/",
+            "AtClient/Packet/",
+            "ProtoBufCore/",
+            "ProtoBufCore/Include/"
+        } );
     }
 }

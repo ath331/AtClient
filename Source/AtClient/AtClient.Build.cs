@@ -18,8 +18,8 @@ public class AtClient : ModuleRules
 		{
 			"AtClient/",
 			"AtClient/Packet/",
-            "AtClient/../ProtoBufCore/Include/",
-            "AtClient/../ProtoBufCore/Include/google",
+            "ProtoBufCore/",
+            "ProtoBufCore/Include/"
         } );
 
         // Uncomment if you are using Slate UI
