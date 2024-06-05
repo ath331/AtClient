@@ -5,6 +5,7 @@
 
 //#include "pch.h"
 #include "S_EnterGameHandler.h"
+#include "AtClientGameInstance.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -12,7 +13,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 bool S_EnterGameHandler::Handle( PacketSessionPtr& session, Protocol::S_EnterGame& pkt )
 {
-
+	if ( auto* gameInstance = Cast< UAtClientGameInstance >( GWorld->GetGameInstance() ) )
+	{
+		gameInstance->HandleSpawn( pkt.player() );
+	}
 
 	return true;
 }

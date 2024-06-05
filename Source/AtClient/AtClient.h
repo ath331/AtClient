@@ -38,3 +38,13 @@ private:
 USING_SHARED_PTR( Session );
 USING_SHARED_PTR( PacketSession );
 USING_SHARED_PTR( SendBuffer );
+
+
+#include "Packet/Handler/ServerPacketHandler.h"
+#include "AtClientGameInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
+
+#define SEND_PACKET( pkt ) \
+	SendBufferPtr sendBuffer = ServerPacketHandler::MakeSendBuffer( pkt ); \
+	Cast< UAtClientGameInstance >( GWorld->GetGameInstance() )->SendPacket( sendBuffer );

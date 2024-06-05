@@ -12,7 +12,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 bool S_SpawnHandler::Handle( PacketSessionPtr& session, Protocol::S_Spawn& pkt )
 {
-
+	if ( auto* gameInstance = Cast< UAtClientGameInstance >( GWorld->GetGameInstance() ) )
+	{
+		gameInstance->HandleSpawn( pkt );
+	}
 
 	return true;
 }

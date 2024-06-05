@@ -12,7 +12,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 bool S_LoginHandler::Handle( PacketSessionPtr& session, Protocol::S_Login& pkt )
 {
+	// TODO : 캐릭터 목록을 받았으니 원하는 캐릭터를 선택할 타이밍
 
-
+	Protocol::C_EnterGame enterGamePkt;
+	enterGamePkt.set_playerindex( 0 );
+	SEND_PACKET( enterGamePkt );
+	
 	return true;
 }

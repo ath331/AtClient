@@ -37,10 +37,33 @@ public:
 	void SendPacket( SendBufferPtr SendBuffer );
 
 public:
+	/// 스폰한다.
+	void HandleSpawn( const Protocol::PlayerInfo& PlayerInfo );
+
+	/// 스폰한다.
+	void HandleSpawn( const Protocol::S_EnterGame& EnterGamePkt );
+
+	/// 스폰한다.
+	void HandleSpawn( const Protocol::S_Spawn& SpawnPkt );
+
+	/// 디스폰한다.
+	void HandleDespawn( uint64 ObjectId );
+
+	/// 디스폰한다.
+	void HandleDespawn( const Protocol::S_DeSpawn& DespawnPkt );
+
+
+public:
 	// GameServer
 	class FSocket* Socket;
 	FString IpAddress = TEXT( "192.168.25.22" );
 	int16 Port        = 7777;
 
 	TSharedPtr< class PacketSession > GameServerSession;
+
+public:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> PlayerClass;
+
+	TMap<uint64, AActor*> Players;
 };

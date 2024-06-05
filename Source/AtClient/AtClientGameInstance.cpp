@@ -10,6 +10,8 @@
 #include "SocketSubsystem.h"
 #include "PacketSession.h"
 #include "Engine.h"
+#include "Packet/Protocol.pb.h"
+#include "Packet/Handler/ServerPacketHandler.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,6 +38,12 @@ void UAtClientGameInstance::ConnectToGameServer()
 
 		GameServerSession = MakeShared< PacketSession >( Socket );
 		GameServerSession->Run();
+
+		{
+			Protocol::C_Login pkt;
+			SendBufferPtr sendBuffer = ServerPacketHandler::MakeSendBuffer( pkt );
+			SendPacket( sendBuffer );
+		}
 	}
 	else
 	{
@@ -76,4 +84,76 @@ void UAtClientGameInstance::SendPacket( SendBufferPtr SendBuffer )
 		return;
 
 	GameServerSession->SendPacket( SendBuffer );
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// @brief 스폰한다.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void UAtClientGameInstance::HandleSpawn( const Protocol::PlayerInfo& PlayerInfo )
+{
+	if ( Socket == nullptr || GameServerSession == nullptr )
+		return;
+
+	auto* World = GetWorld();
+	if ( World == nullptr )
+		return;
+
+	// 중복 처리 체크
+	const uint64 ObjectId = PlayerInfo.id();
+	if ( Players.Find( ObjectId ) != nullptr )
+		return;
+
+	FVector SpawnLocation( PlayerInfo.x(), PlayerInfo.y(), PlayerInfo.z() );
+	AActor* Actor = World->SpawnActor( PlayerClass, &SpawnLocation );
+
+	Players.Add( PlayerInfo.id(), Actor );
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// @brief 스폰한다.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void UAtClientGameInstance::HandleSpawn( const Protocol::S_EnterGame& EnterGamePkt )
+{
+	HandleSpawn( EnterGamePkt.player() );
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// @brief 스폰한다.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void UAtClientGameInstance::HandleSpawn( const Protocol::S_Spawn& SpawnPkt )
+{
+	for ( auto& Player : SpawnPkt.players() )
+	{
+		HandleSpawn( Player );
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// @brief 디스폰한다.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void UAtClientGameInstance::HandleDespawn( uint64 ObjectId )
+{
+	if ( Socket == nullptr || GameServerSession == nullptr )
+		return;
+
+	auto* World = GetWorld();
+	if ( World == nullptr )
+		return;
+
+	AActor** FindActor = Players.Find( ObjectId );
+	if ( FindActor == nullptr )
+		return;
+
+	World->DestroyActor( *FindActor );
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// @brief 디스폰한다.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void UAtClientGameInstance::HandleDespawn( const Protocol::S_DeSpawn& DespawnPkt )
+{
+	for ( auto& ObjectId : DespawnPkt.ids() )
+	{
+		HandleDespawn( ObjectId );
+	}
 }
