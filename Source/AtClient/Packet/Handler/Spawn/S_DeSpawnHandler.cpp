@@ -12,7 +12,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 bool S_DeSpawnHandler::Handle( PacketSessionPtr& session, Protocol::S_DeSpawn& pkt )
 {
-
+	if ( auto* gameInstance = Cast< UAtClientGameInstance >( GWorld->GetGameInstance() ) )
+	{
+		gameInstance->HandleDeSpawn( pkt );
+	}
 
 	return true;
 }

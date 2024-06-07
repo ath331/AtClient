@@ -55,13 +55,19 @@ void UAtClientGameInstance::ConnectToGameServer()
 // @brief 서버와 연결을 끊는다.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void UAtClientGameInstance::DisconnectFromGameServer()
-{
-	if ( Socket )
-	{
-		ISocketSubsystem* SocketSubsystem = ISocketSubsystem::Get();
-		SocketSubsystem->DestroySocket( Socket );
-		Socket = nullptr;
-	}
+{ 
+	if ( !Socket || !GameServerSession )
+		return;
+
+	Protocol::C_LeaveGame pkt;
+	SEND_PACKET( pkt );
+
+	// if ( Socket )
+	// {
+	// 	ISocketSubsystem* SocketSubsystem = ISocketSubsystem::Get();
+	// 	SocketSubsystem->DestroySocket( Socket );
+	// 	Socket = nullptr;
+	// }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -131,7 +137,7 @@ void UAtClientGameInstance::HandleSpawn( const Protocol::S_Spawn& SpawnPkt )
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // @brief 디스폰한다.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void UAtClientGameInstance::HandleDespawn( uint64 ObjectId )
+void UAtClientGameInstance::HandleDeSpawn( uint64 ObjectId )
 {
 	if ( Socket == nullptr || GameServerSession == nullptr )
 		return;
@@ -150,10 +156,10 @@ void UAtClientGameInstance::HandleDespawn( uint64 ObjectId )
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // @brief 디스폰한다.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void UAtClientGameInstance::HandleDespawn( const Protocol::S_DeSpawn& DespawnPkt )
+void UAtClientGameInstance::HandleDeSpawn( const Protocol::S_DeSpawn& DespawnPkt )
 {
 	for ( auto& ObjectId : DespawnPkt.ids() )
 	{
-		HandleDespawn( ObjectId );
+		HandleDeSpawn( ObjectId );
 	}
 }

@@ -47,10 +47,10 @@ public:
 	void HandleSpawn( const Protocol::S_Spawn& SpawnPkt );
 
 	/// 디스폰한다.
-	void HandleDespawn( uint64 ObjectId );
+	void HandleDeSpawn( uint64 ObjectId );
 
 	/// 디스폰한다.
-	void HandleDespawn( const Protocol::S_DeSpawn& DespawnPkt );
+	void HandleDeSpawn( const Protocol::S_DeSpawn& DespawnPkt );
 
 
 public:
