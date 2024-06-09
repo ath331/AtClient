@@ -15,7 +15,7 @@ bool S_EnterGameHandler::Handle( PacketSessionPtr& session, Protocol::S_EnterGam
 {
 	if ( auto* gameInstance = Cast< UAtClientGameInstance >( GWorld->GetGameInstance() ) )
 	{
-		gameInstance->HandleSpawn( pkt.player() );
+		gameInstance->HandleSpawn( pkt );
 	}
 
 	return true;

@@ -10,6 +10,7 @@
 #include "SocketSubsystem.h"
 #include "PacketSession.h"
 #include "Engine.h"
+#include "Game/AtClientMyPlayer.h"
 #include "Packet/Protocol.pb.h"
 #include "Packet/Handler/ServerPacketHandler.h"
 
@@ -95,7 +96,7 @@ void UAtClientGameInstance::SendPacket( SendBufferPtr SendBuffer )
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // @brief 스폰한다.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void UAtClientGameInstance::HandleSpawn( const Protocol::PlayerInfo& PlayerInfo )
+void UAtClientGameInstance::HandleSpawn( const Protocol::PlayerInfo& PlayerInfo, bool isMyPlayer )
 {
 	if ( Socket == nullptr || GameServerSession == nullptr )
 		return;
@@ -110,9 +111,22 @@ void UAtClientGameInstance::HandleSpawn( const Protocol::PlayerInfo& PlayerInfo 
 		return;
 
 	FVector SpawnLocation( PlayerInfo.x(), PlayerInfo.y(), PlayerInfo.z() );
-	AActor* Actor = World->SpawnActor( PlayerClass, &SpawnLocation );
 
-	Players.Add( PlayerInfo.id(), Actor );
+	if ( isMyPlayer )
+	{
+		auto* PC = UGameplayStatics::GetPlayerController( this, 0 );
+		AAtClientPlayer* player = Cast< AAtClientPlayer >( PC->GetPawn() );
+		if ( !player )
+			return;
+
+		myPlayer = player;
+		Players.Add( PlayerInfo.id(), player );
+	}
+	else
+	{
+		AAtClientPlayer* Player = Cast< AAtClientPlayer>( World->SpawnActor( OtherPlayerClass, &SpawnLocation ) );
+		Players.Add( PlayerInfo.id(), Player );
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +134,7 @@ void UAtClientGameInstance::HandleSpawn( const Protocol::PlayerInfo& PlayerInfo 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void UAtClientGameInstance::HandleSpawn( const Protocol::S_EnterGame& EnterGamePkt )
 {
-	HandleSpawn( EnterGamePkt.player() );
+	HandleSpawn( EnterGamePkt.player(), true );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,7 +144,7 @@ void UAtClientGameInstance::HandleSpawn( const Protocol::S_Spawn& SpawnPkt )
 {
 	for ( auto& Player : SpawnPkt.players() )
 	{
-		HandleSpawn( Player );
+		HandleSpawn( Player, false );
 	}
 }
 
@@ -146,7 +160,7 @@ void UAtClientGameInstance::HandleDeSpawn( uint64 ObjectId )
 	if ( World == nullptr )
 		return;
 
-	AActor** FindActor = Players.Find( ObjectId );
+	AAtClientPlayer** FindActor = Players.Find( ObjectId );
 	if ( FindActor == nullptr )
 		return;
 

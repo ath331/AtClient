@@ -12,9 +12,9 @@
 #include "AtClientGameInstance.generated.h"
 
 
-/**
- * 
- */
+class AAtClientPlayer;
+
+
 UCLASS()
 class ATCLIENT_API UAtClientGameInstance : public UGameInstance
 {
@@ -38,7 +38,7 @@ public:
 
 public:
 	/// 스폰한다.
-	void HandleSpawn( const Protocol::PlayerInfo& PlayerInfo );
+	void HandleSpawn( const Protocol::PlayerInfo& PlayerInfo, bool isMyPlayer );
 
 	/// 스폰한다.
 	void HandleSpawn( const Protocol::S_EnterGame& EnterGamePkt );
@@ -63,7 +63,8 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> PlayerClass;
+	TSubclassOf<AAtClientPlayer> OtherPlayerClass;
 
-	TMap<uint64, AActor*> Players;
+	AAtClientPlayer* myPlayer;
+	TMap<uint64, AAtClientPlayer*> Players;
 };

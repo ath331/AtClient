@@ -10,7 +10,7 @@ public class AtClient : ModuleRules
 		// PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		// PrivatePCHHeaderFile = "pch.h";
 
-		PublicDependencyModuleNames.AddRange( new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Sockets", "Networking" } );
+		PublicDependencyModuleNames.AddRange( new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Sockets", "Networking", "EnhancedInput" } );
 
 		PrivateDependencyModuleNames.AddRange( new string[] { "ProtoBufCore" } );
 
@@ -18,6 +18,7 @@ public class AtClient : ModuleRules
 		{
 			"AtClient/",
 			"AtClient/Packet/",
+			"AtClient/Game/",
             "ProtoBufCore/",
             "ProtoBufCore/Include/"
         } );
