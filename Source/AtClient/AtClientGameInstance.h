@@ -52,6 +52,8 @@ public:
 	/// 디스폰한다.
 	void HandleDeSpawn( const Protocol::S_DeSpawn& DespawnPkt );
 
+	/// Move한다.
+	void HandleMove( const Protocol::S_Move& movePkt );
 
 public:
 	// GameServer

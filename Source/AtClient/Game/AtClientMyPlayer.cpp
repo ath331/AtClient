@@ -11,6 +11,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "AtClient.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -42,6 +43,27 @@ void AAtClientMyPlayer::BeginPlay()
 		{
 			Subsystem->AddMappingContext( DefaultMappingContext, 0 );
 		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// @brief 프레임마다 호출되는 함수
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void AAtClientMyPlayer::Tick( float deltaTime )
+{
+	Super::Tick( deltaTime );
+
+	m_movePacketSendTimer -= deltaTime;
+
+	if ( m_movePacketSendTimer <= 0 )
+	{
+		Protocol::C_Move movePkt;
+		Protocol::PlayerInfo* playerInfo =  movePkt.mutable_info();
+		playerInfo->CopyFrom( *m_playerInfo );
+
+		SEND_PACKET( movePkt );
+
+		m_movePacketSendTimer = MOVE_PACKET_SEND_DELAY;
 	}
 }
 

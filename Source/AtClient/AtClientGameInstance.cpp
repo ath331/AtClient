@@ -119,13 +119,16 @@ void UAtClientGameInstance::HandleSpawn( const Protocol::PlayerInfo& PlayerInfo,
 		if ( !player )
 			return;
 
+		player->SetPlayerInfo( PlayerInfo );
+
 		myPlayer = player;
 		Players.Add( PlayerInfo.id(), player );
 	}
 	else
 	{
-		AAtClientPlayer* Player = Cast< AAtClientPlayer>( World->SpawnActor( OtherPlayerClass, &SpawnLocation ) );
-		Players.Add( PlayerInfo.id(), Player );
+		AAtClientPlayer* player = Cast< AAtClientPlayer>( World->SpawnActor( OtherPlayerClass, &SpawnLocation ) );
+		player->SetPlayerInfo( PlayerInfo );
+		Players.Add( PlayerInfo.id(), player );
 	}
 }
 
@@ -176,4 +179,32 @@ void UAtClientGameInstance::HandleDeSpawn( const Protocol::S_DeSpawn& DespawnPkt
 	{
 		HandleDeSpawn( ObjectId );
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// @brief MoveÇÑ´Ù.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void UAtClientGameInstance::HandleMove( const Protocol::S_Move& movePkt )
+{
+	if ( Socket == nullptr || GameServerSession == nullptr )
+		return;
+
+	auto* World = GetWorld();
+	if ( World == nullptr )
+		return;
+
+	const uint64 id = movePkt.info().id();
+
+	AAtClientPlayer** FindActor = Players.Find( id );
+	if ( FindActor == nullptr )
+		return;
+
+	AAtClientPlayer* player = *FindActor;
+	if ( !player )
+		return;
+
+	if ( player->IsMyPlayer() )
+		return;
+
+	player->SetPlayerInfo( movePkt.info() );
 }

@@ -41,6 +41,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+protected:
+	/// MovePacket을 보내는 빈도수
+	const float MOVE_PACKET_SEND_DELAY = 0.2f;
+
+	/// MovePacket Timer
+	float m_movePacketSendTimer = MOVE_PACKET_SEND_DELAY;
+
 public:
 	AAtClientMyPlayer();
 	
@@ -57,6 +64,9 @@ protected:
 	
 	// To add mapping context
 	virtual void BeginPlay();
+
+	/// 프레임마다 호출되는 함수
+	virtual void Tick( float deltaTime ) override;
 
 public:
 	/** Returns CameraBoom subobject **/

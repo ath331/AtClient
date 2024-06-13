@@ -12,7 +12,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 bool S_MoveHandler::Handle( PacketSessionPtr& session, Protocol::S_Move& pkt )
 {
-
+	if ( auto* gameInstance = Cast< UAtClientGameInstance >( GWorld->GetGameInstance() ) )
+	{
+		gameInstance->HandleMove( pkt );
+	}
 
 	return true;
 }
