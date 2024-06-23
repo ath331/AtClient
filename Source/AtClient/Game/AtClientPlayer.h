@@ -24,8 +24,11 @@ class ATCLIENT_API AAtClientPlayer : public ACharacter
 	GENERATED_BODY()
 
 protected:
-	/// 플레이어 정보
+	/// 플레이어 정보 ( 현재 위치 )
 	class Protocol::PlayerInfo* m_playerInfo;
+
+	/// 플레이어 정보 ( 다음 예정 위치 )
+	class Protocol::PlayerInfo* m_destPlayerInfo;
 
 public:
 	/// 생성자
@@ -36,6 +39,15 @@ public:
 
 	/// 플레이어 정보를 세팅한다.
 	void SetPlayerInfo( const Protocol::PlayerInfo& playerInfo );
+
+	/// 다음 위치의 플레이어 정보를 세팅한다.
+	void SetDestPlayerInfo( const Protocol::PlayerInfo& playerInfo );
+
+	/// MoveState를 반환한다.
+	Protocol::MoveState GetMoveState();
+
+	/// MoveState를 세팅한다.
+	void SetMoveState( Protocol::MoveState state );
 
 	/// 플레이어 정보를 반환한다.
 	Protocol::PlayerInfo* GetPlayerInfo() { return m_playerInfo; }

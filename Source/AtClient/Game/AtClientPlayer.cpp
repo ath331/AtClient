@@ -40,7 +40,10 @@ AAtClientPlayer::AAtClientPlayer()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
-	m_playerInfo = new Protocol::PlayerInfo;
+	GetCharacterMovement()->bRunPhysicsWithNoController = true;
+
+	m_playerInfo     = new Protocol::PlayerInfo;
+	m_destPlayerInfo = new Protocol::PlayerInfo;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +55,12 @@ AAtClientPlayer::~AAtClientPlayer()
 	{
 		delete m_playerInfo;
 		m_playerInfo = nullptr;
+	}
+
+	if ( m_destPlayerInfo )
+	{
+		delete m_destPlayerInfo;
+		m_destPlayerInfo = nullptr;
 	}
 }
 
@@ -70,6 +79,38 @@ void AAtClientPlayer::SetPlayerInfo( const Protocol::PlayerInfo& playerInfo )
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// @brief 다음 위치의 플레이어 정보를 세팅한다.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void AAtClientPlayer::SetDestPlayerInfo( const Protocol::PlayerInfo& playerInfo )
+{
+	if ( m_destPlayerInfo->id() != 0 )
+		assert( m_destPlayerInfo->id() == playerInfo.id() );
+
+	m_destPlayerInfo->CopyFrom( playerInfo );
+
+	SetMoveState( playerInfo.movestate() );
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// @brief MoveState를 반환한다.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+Protocol::MoveState AAtClientPlayer::GetMoveState()
+{
+	return m_playerInfo->movestate();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// @brief MoveState를 세팅한다.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void AAtClientPlayer::SetMoveState( Protocol::MoveState state )
+{
+	if ( m_playerInfo->movestate() == state )
+		return;
+
+	m_playerInfo->set_movestate( state );
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // @brief 나인지 확인한다.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 bool AAtClientPlayer::IsMyPlayer()
@@ -81,6 +122,16 @@ void AAtClientPlayer::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+	{
+		FVector location = GetActorLocation();
+		m_destPlayerInfo->set_x( location.X );
+		m_destPlayerInfo->set_y( location.Y );
+		m_destPlayerInfo->set_z( location.Z );
+		m_destPlayerInfo->set_yaw( GetControlRotation().Yaw );
+
+		SetMoveState( Protocol::MOVE_STATE_IDLE );
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,9 +141,41 @@ void AAtClientPlayer::Tick( float deltaTime )
 {
 	Super::Tick( deltaTime );
 
-	FVector location = GetActorLocation();
-	m_playerInfo->set_x  ( location.X               );
-	m_playerInfo->set_y  ( location.Y               );
-	m_playerInfo->set_z  ( location.Z               );
-	m_playerInfo->set_yaw( GetControlRotation().Yaw );
+	{
+		FVector location = GetActorLocation();
+		m_playerInfo->set_x( location.X );
+		m_playerInfo->set_y( location.Y );
+		m_playerInfo->set_z( location.Z );
+		m_playerInfo->set_yaw( GetControlRotation().Yaw );
+	}
+
+	if ( !IsMyPlayer() )
+	{
+		// 애니메이션 처리 안 되는 소스
+		/*FVector location = GetActorLocation();
+		FVector destLocation = FVector(
+			m_destPlayerInfo->x(),
+			m_destPlayerInfo->y(),
+			m_destPlayerInfo->z() );
+
+		FVector moveDir = destLocation - location;
+		const float distToDest = moveDir.Length();
+		moveDir.Normalize();
+
+		float moveDist = ( moveDir * 600.f * deltaTime ).Length();
+		moveDist = FMath::Min( moveDist, distToDest );
+		FVector nextLocation = location + moveDir * moveDist;
+
+		SetActorLocation( nextLocation );*/
+
+		if ( m_playerInfo->movestate() == Protocol::MOVE_STATE_RUN )
+		{
+			SetActorRotation( FRotator( 0, m_destPlayerInfo->yaw(), 0 ) );
+			AddMovementInput( GetActorForwardVector() );
+		}
+		else
+		{
+
+		}
+	}
 }

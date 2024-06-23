@@ -206,5 +206,6 @@ void UAtClientGameInstance::HandleMove( const Protocol::S_Move& movePkt )
 	if ( player->IsMyPlayer() )
 		return;
 
-	player->SetPlayerInfo( movePkt.info() );
+	// player->SetPlayerInfo( movePkt.info() );
+	player->SetDestPlayerInfo( movePkt.info() );
 }

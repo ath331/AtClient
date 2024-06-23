@@ -41,12 +41,21 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+/// Cache
+protected:
+	FVector2D desiredInput;
+	FVector   desiredMoveDirection;
+	float     desiredYaw;
+
 protected:
 	/// MovePacket을 보내는 빈도수
 	const float MOVE_PACKET_SEND_DELAY = 0.2f;
 
 	/// MovePacket Timer
 	float m_movePacketSendTimer = MOVE_PACKET_SEND_DELAY;
+
+	// Dirty Flagh Test
+	FVector2D lastDesiredInput;
 
 public:
 	AAtClientMyPlayer();

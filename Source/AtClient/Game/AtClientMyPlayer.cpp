@@ -12,6 +12,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "AtClient.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -53,13 +54,29 @@ void AAtClientMyPlayer::Tick( float deltaTime )
 {
 	Super::Tick( deltaTime );
 
+	// Send ÆÇÁ¤
+	bool forceSendPacket = false;
+
+	if ( lastDesiredInput != desiredInput )
+	{
+		forceSendPacket = true;
+		lastDesiredInput = desiredInput;
+	}
+
+	if ( desiredInput == FVector2D::Zero() )
+		SetMoveState( Protocol::MOVE_STATE_IDLE );
+	else
+		SetMoveState( Protocol::MOVE_STATE_RUN );
+
 	m_movePacketSendTimer -= deltaTime;
 
-	if ( m_movePacketSendTimer <= 0 )
+	if ( m_movePacketSendTimer <= 0 || forceSendPacket )
 	{
 		Protocol::C_Move movePkt;
 		Protocol::PlayerInfo* playerInfo =  movePkt.mutable_info();
 		playerInfo->CopyFrom( *m_playerInfo );
+		playerInfo->set_yaw( desiredYaw );
+		playerInfo->set_movestate( GetMoveState() );
 
 		SEND_PACKET( movePkt );
 
@@ -77,11 +94,12 @@ void AAtClientMyPlayer::SetupPlayerInputComponent( UInputComponent* PlayerInputC
 	{
 
 		// Jumping
-		EnhancedInputComponent->BindAction( JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump );
+		EnhancedInputComponent->BindAction( JumpAction, ETriggerEvent::Started,   this, &ACharacter::Jump        );
 		EnhancedInputComponent->BindAction( JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping );
 
 		// Moving
 		EnhancedInputComponent->BindAction( MoveAction, ETriggerEvent::Triggered, this, &AAtClientMyPlayer::Move );
+		EnhancedInputComponent->BindAction( MoveAction, ETriggerEvent::Completed, this, &AAtClientMyPlayer::Move );
 
 		// Looking
 		EnhancedInputComponent->BindAction( LookAction, ETriggerEvent::Triggered, this, &AAtClientMyPlayer::Look );
@@ -112,6 +130,20 @@ void AAtClientMyPlayer::Move( const FInputActionValue& Value )
 		// add movement 
 		AddMovementInput( ForwardDirection, MovementVector.Y );
 		AddMovementInput( RightDirection, MovementVector.X );
+
+		// Cache
+		{
+			desiredInput = MovementVector;
+
+			desiredMoveDirection = FVector::ZeroVector;
+			desiredMoveDirection += ForwardDirection * MovementVector.Y;
+			desiredMoveDirection += RightDirection * MovementVector.X;
+			desiredMoveDirection.Normalize();
+
+			const FVector location = GetActorLocation();
+			FRotator rotator = UKismetMathLibrary::FindLookAtRotation( location, location + desiredMoveDirection );
+			desiredYaw = rotator.Yaw;
+		}
 	}
 }
 
