@@ -42,8 +42,8 @@ AAtClientPlayer::AAtClientPlayer()
 
 	GetCharacterMovement()->bRunPhysicsWithNoController = true;
 
-	m_playerInfo     = new Protocol::PlayerInfo;
-	m_destPlayerInfo = new Protocol::PlayerInfo;
+	m_posInfo     = new Protocol::PosInfo();
+	m_destPosInfo = new Protocol::PosInfo();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,44 +51,47 @@ AAtClientPlayer::AAtClientPlayer()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 AAtClientPlayer::~AAtClientPlayer()
 {
-	if ( m_playerInfo )
+	if ( m_posInfo )
 	{
-		delete m_playerInfo;
-		m_playerInfo = nullptr;
+		delete m_posInfo;
+		m_posInfo = nullptr;
 	}
 
-	if ( m_destPlayerInfo )
+	if ( m_destPosInfo )
 	{
-		delete m_destPlayerInfo;
-		m_destPlayerInfo = nullptr;
+		delete m_destPosInfo;
+		m_destPosInfo = nullptr;
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // @brief 플레이어 정보를 세팅한다.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void AAtClientPlayer::SetPlayerInfo( const Protocol::PlayerInfo& playerInfo )
+void AAtClientPlayer::SetPosInfo( const Protocol::PosInfo& posInfo )
 {
-	if ( m_playerInfo->id() != 0 )
-		assert( m_playerInfo->id() == playerInfo.id() );
+	if ( m_posInfo->id() != 0 )
+		assert( m_posInfo->id() == posInfo.id() );
 
-	m_playerInfo->CopyFrom( playerInfo );
+	m_posInfo->CopyFrom( posInfo );
 
-	FVector Location( playerInfo.x(), playerInfo.y(), playerInfo.z() );
+	FVector Location( posInfo.x(),
+					  posInfo.y(),
+					  posInfo.z() );
+
 	SetActorLocation( Location );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // @brief 다음 위치의 플레이어 정보를 세팅한다.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void AAtClientPlayer::SetDestPlayerInfo( const Protocol::PlayerInfo& playerInfo )
+void AAtClientPlayer::SetDestPosInfo( const Protocol::PosInfo& posInfo )
 {
-	if ( m_destPlayerInfo->id() != 0 )
-		assert( m_destPlayerInfo->id() == playerInfo.id() );
+	if ( m_destPosInfo->id() != 0 )
+		assert( m_destPosInfo->id() == posInfo.id() );
 
-	m_destPlayerInfo->CopyFrom( playerInfo );
+	m_destPosInfo->CopyFrom( posInfo );
 
-	SetMoveState( playerInfo.movestate() );
+	SetMoveState( posInfo.move_state() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,7 +99,7 @@ void AAtClientPlayer::SetDestPlayerInfo( const Protocol::PlayerInfo& playerInfo 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 Protocol::MoveState AAtClientPlayer::GetMoveState()
 {
-	return m_playerInfo->movestate();
+	return m_posInfo->move_state();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,10 +107,10 @@ Protocol::MoveState AAtClientPlayer::GetMoveState()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void AAtClientPlayer::SetMoveState( Protocol::MoveState state )
 {
-	if ( m_playerInfo->movestate() == state )
+	if ( m_posInfo->move_state() == state )
 		return;
 
-	m_playerInfo->set_movestate( state );
+	m_posInfo->set_move_state( state );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,10 +128,10 @@ void AAtClientPlayer::BeginPlay()
 
 	{
 		FVector location = GetActorLocation();
-		m_destPlayerInfo->set_x( location.X );
-		m_destPlayerInfo->set_y( location.Y );
-		m_destPlayerInfo->set_z( location.Z );
-		m_destPlayerInfo->set_yaw( GetControlRotation().Yaw );
+		m_destPosInfo->set_x( location.X );
+		m_destPosInfo->set_y( location.Y );
+		m_destPosInfo->set_z( location.Z );
+		m_destPosInfo->set_yaw( GetControlRotation().Yaw );
 
 		SetMoveState( Protocol::MOVE_STATE_IDLE );
 	}
@@ -143,10 +146,10 @@ void AAtClientPlayer::Tick( float deltaTime )
 
 	{
 		FVector location = GetActorLocation();
-		m_playerInfo->set_x( location.X );
-		m_playerInfo->set_y( location.Y );
-		m_playerInfo->set_z( location.Z );
-		m_playerInfo->set_yaw( GetControlRotation().Yaw );
+		m_posInfo->set_x( location.X );
+		m_posInfo->set_y( location.Y );
+		m_posInfo->set_z( location.Z );
+		m_posInfo->set_yaw( GetControlRotation().Yaw );
 	}
 
 	if ( !IsMyPlayer() )
@@ -154,9 +157,9 @@ void AAtClientPlayer::Tick( float deltaTime )
 		// 애니메이션 처리 안 되는 소스
 		/*FVector location = GetActorLocation();
 		FVector destLocation = FVector(
-			m_destPlayerInfo->x(),
-			m_destPlayerInfo->y(),
-			m_destPlayerInfo->z() );
+			m_destPosInfo->x(),
+			m_destPosInfo->y(),
+			m_destPosInfo->z() );
 
 		FVector moveDir = destLocation - location;
 		const float distToDest = moveDir.Length();
@@ -168,9 +171,9 @@ void AAtClientPlayer::Tick( float deltaTime )
 
 		SetActorLocation( nextLocation );*/
 
-		if ( m_playerInfo->movestate() == Protocol::MOVE_STATE_RUN )
+		if ( m_posInfo->move_state() == Protocol::MOVE_STATE_RUN )
 		{
-			SetActorRotation( FRotator( 0, m_destPlayerInfo->yaw(), 0 ) );
+			SetActorRotation( FRotator( 0, m_destPosInfo->yaw(), 0 ) );
 			AddMovementInput( GetActorForwardVector() );
 		}
 		else

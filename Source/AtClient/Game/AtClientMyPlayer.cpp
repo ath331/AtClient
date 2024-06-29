@@ -73,10 +73,10 @@ void AAtClientMyPlayer::Tick( float deltaTime )
 	if ( m_movePacketSendTimer <= 0 || forceSendPacket )
 	{
 		Protocol::C_Move movePkt;
-		Protocol::PlayerInfo* playerInfo =  movePkt.mutable_info();
-		playerInfo->CopyFrom( *m_playerInfo );
-		playerInfo->set_yaw( desiredYaw );
-		playerInfo->set_movestate( GetMoveState() );
+		Protocol::PosInfo* posInfo =  movePkt.mutable_info();
+		posInfo->CopyFrom( *m_posInfo );
+		posInfo->set_yaw( desiredYaw );
+		posInfo->set_move_state( GetMoveState() );
 
 		SEND_PACKET( movePkt );
 

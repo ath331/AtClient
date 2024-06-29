@@ -38,7 +38,7 @@ public:
 
 public:
 	/// 스폰한다.
-	void HandleSpawn( const Protocol::PlayerInfo& PlayerInfo, bool isMyPlayer );
+	void HandleSpawn( const Protocol::ObjectInfo& objectInfo, bool isMyPlayer );
 
 	/// 스폰한다.
 	void HandleSpawn( const Protocol::S_EnterGame& EnterGamePkt );

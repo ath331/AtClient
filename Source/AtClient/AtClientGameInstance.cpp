@@ -96,7 +96,7 @@ void UAtClientGameInstance::SendPacket( SendBufferPtr SendBuffer )
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // @brief 스폰한다.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void UAtClientGameInstance::HandleSpawn( const Protocol::PlayerInfo& PlayerInfo, bool isMyPlayer )
+void UAtClientGameInstance::HandleSpawn( const Protocol::ObjectInfo& objectInfo, bool isMyPlayer )
 {
 	if ( Socket == nullptr || GameServerSession == nullptr )
 		return;
@@ -106,11 +106,13 @@ void UAtClientGameInstance::HandleSpawn( const Protocol::PlayerInfo& PlayerInfo,
 		return;
 
 	// 중복 처리 체크
-	const uint64 ObjectId = PlayerInfo.id();
+	const uint64 ObjectId = objectInfo.id();
 	if ( Players.Find( ObjectId ) != nullptr )
 		return;
 
-	FVector SpawnLocation( PlayerInfo.x(), PlayerInfo.y(), PlayerInfo.z() );
+	FVector SpawnLocation( objectInfo.pos_info().x(), 
+						   objectInfo.pos_info().y(), 
+						   objectInfo.pos_info().z() );
 
 	if ( isMyPlayer )
 	{
@@ -119,16 +121,16 @@ void UAtClientGameInstance::HandleSpawn( const Protocol::PlayerInfo& PlayerInfo,
 		if ( !player )
 			return;
 
-		player->SetPlayerInfo( PlayerInfo );
+		player->SetPosInfo( objectInfo.pos_info() );
 
 		myPlayer = player;
-		Players.Add( PlayerInfo.id(), player );
+		Players.Add( objectInfo.id(), player );
 	}
 	else
 	{
 		AAtClientPlayer* player = Cast< AAtClientPlayer>( World->SpawnActor( OtherPlayerClass, &SpawnLocation ) );
-		player->SetPlayerInfo( PlayerInfo );
-		Players.Add( PlayerInfo.id(), player );
+		player->SetPosInfo( objectInfo.pos_info() );
+		Players.Add( objectInfo.id(), player );
 	}
 }
 
@@ -207,5 +209,5 @@ void UAtClientGameInstance::HandleMove( const Protocol::S_Move& movePkt )
 		return;
 
 	// player->SetPlayerInfo( movePkt.info() );
-	player->SetDestPlayerInfo( movePkt.info() );
+	player->SetDestPosInfo( movePkt.info() );
 }
