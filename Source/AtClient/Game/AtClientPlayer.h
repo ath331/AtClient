@@ -44,10 +44,10 @@ public:
 	void SetDestPosInfo( const Protocol::PosInfo& posInfo );
 
 	/// MoveState를 반환한다.
-	Protocol::MoveState GetMoveState();
+	Protocol::EMoveState GetMoveState();
 
 	/// MoveState를 세팅한다.
-	void SetMoveState( Protocol::MoveState state );
+	void SetMoveState( Protocol::EMoveState state );
 
 	/// 플레이어 위치를 반환한다.
 	Protocol::PosInfo* GetPlayerInfo() { return m_posInfo; }
